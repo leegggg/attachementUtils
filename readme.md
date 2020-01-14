@@ -17,6 +17,8 @@ python3 -m 'venv' env
 pip install -r requirements.txt
 python src/tiebaWapGet/main.py
 
+$env:VariableName = 'new-value'
+$env:VariableName = ''
 ```
 
 ## Get data from archive.org

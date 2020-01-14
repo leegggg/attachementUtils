@@ -7,16 +7,21 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import logging
 from requests.adapters import HTTPAdapter
+import os
 
 MAX_RETRY = 5
 
-proxies = {
-  "http": "http://redqueen.lan.linyz.net:7890",
-  "https": "http://redqueen.lan.linyz.net:7890",
-}
+proxies = {}
+
+if os.environ.get("http_proxy"):
+    proxies["http"] = os.environ.get("http_proxy")
+
+if os.environ.get("https_proxy"):
+    proxies["https"] = os.environ.get("https_proxy")
 
 req = requests.Session()
-req.proxies.update(proxies)
+if proxies:
+    req.proxies.update(proxies)
 httpAdapter = HTTPAdapter(max_retries=MAX_RETRY)
 
 req.mount('http://', httpAdapter)
