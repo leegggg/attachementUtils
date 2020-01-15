@@ -39,6 +39,7 @@ def makeEmptyAttachementHeader(link: str, pid: str) -> AttachementHeader:
 def downloadAttachement(
         att: AttachementHeader,
         attachementBasePath="data/attachements/"):
+    import re
     import os.path
     from pathlib import Path
     # from common import ATTACHEMENT_BASE_PATH
@@ -56,8 +57,8 @@ def downloadAttachement(
         # downUrl = 'http://dl1.subhd.com/sub/2019/03/155343934746869.zip'
         if not downUrl:
             return None
-
-        parts = Path(downUrl).parts[1:]  # cut http[s] and host
+        localUrl = re.sub(r'[ <>*?|:\\\t"]', '_', str(downUrl))
+        parts = Path(localUrl).parts[1:]  # cut http[s] and host
         subPath = Path("")
         for part in parts:
             subPath = subPath.joinpath(part)
@@ -132,9 +133,12 @@ def fetchAttAll(dbUrl, attrfilter=None, fatchSize=200, nbMaxBlocked=10, attachem
                 header.status = STATUS_UNKNOW_ERROR
                 header.comment = str(e)
                 header.mod_date = datetime.now()
+                logging.warn("{} {} {}".format(header.link,header.status,header.comment))
 
             session = Session()
             if header:
+                if not header.status:
+                    header.status = STATUS_UNKNOW_ERROR
                 session.merge(header)
             session.commit()
         except Exception as e:
