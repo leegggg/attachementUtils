@@ -120,7 +120,7 @@ def fetchAttAll(dbUrl, attrfilter=None, fatchSize=200, nbMaxBlocked=10, attachem
             header: AttachementHeader = results[index]
 
             logging.info("Got {} subs took {:.3f}(sec) old is {} blocked {}, select nb {}: {} - {}".format(
-                datetime.now().isoformat(), nbRes, datetime.now(
+                nbRes, datetime.now(
                 ).timestamp() - start, nbResOld, nbBlocked,
                 index, header.pid, header.link))
             nbResOld = nbRes
