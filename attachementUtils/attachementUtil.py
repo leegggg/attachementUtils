@@ -27,6 +27,8 @@ httpAdapter = HTTPAdapter(max_retries=MAX_RETRY)
 req.mount('http://', httpAdapter)
 req.mount('https://', httpAdapter)
 
+def checkBlackList():
+    return False
 
 def makeEmptyAttachementHeader(link: str, pid: str) -> AttachementHeader:
     att = AttachementHeader()
@@ -65,7 +67,7 @@ def downloadAttachement(
         fullPath = Path(attachementBasePath).joinpath(subPath)
         os.makedirs(fullPath.parent, mode=0o755, exist_ok=True)
 
-        ret = req.get(downUrl, headers=REQUEST_HEADERS, timeout=(30, 300))
+        ret = req.get(downUrl, headers=REQUEST_HEADERS, timeout=(30, 30))
         att.status = int(ret.status_code)
 
         if att.status and att.status < 400:
@@ -83,6 +85,7 @@ def downloadAttachement(
 
 def fetchAttAll(dbUrl, attrfilter=None, fatchSize=200, nbMaxBlocked=10, attachementBasePath="data/attachements/"):
     import random
+    from common import STATUS_UNKNOW_ERROR, STATUS_ONGOING
 
     engine = create_engine(dbUrl)
     Base.metadata.create_all(engine)
@@ -120,6 +123,12 @@ def fetchAttAll(dbUrl, attrfilter=None, fatchSize=200, nbMaxBlocked=10, attachem
             index = random.randrange(len(results))
             header: AttachementHeader = results[index]
 
+            session = Session()
+            if header:
+                    header.status = STATUS_ONGOING
+                    session.merge(header)
+            session.commit()
+
             logging.info("Got {} subs took {:.3f}(sec) old is {} blocked {}, select nb {}: {} - {}".format(
                 nbRes, datetime.now(
                 ).timestamp() - start, nbResOld, nbBlocked,
@@ -129,7 +138,6 @@ def fetchAttAll(dbUrl, attrfilter=None, fatchSize=200, nbMaxBlocked=10, attachem
             try:
                 header = downloadAttachement(header, attachementBasePath=attachementBasePath)
             except Exception as e:
-                from common import STATUS_UNKNOW_ERROR
                 header.status = STATUS_UNKNOW_ERROR
                 header.comment = str(e)
                 header.mod_date = datetime.now()
