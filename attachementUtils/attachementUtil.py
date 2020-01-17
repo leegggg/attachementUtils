@@ -9,7 +9,7 @@ import logging
 from requests.adapters import HTTPAdapter
 import os
 
-MAX_RETRY = 5
+MAX_RETRY = 2 
 
 proxies = {}
 
