@@ -98,7 +98,7 @@ def fetchAttAll(dbUrl, attrfilter=None, fatchSize=200, nbMaxBlocked=10, attachem
 
     if attrfilter is None:
         attrfilter = ((AttachementHeader.mod_date < processBegin) &
-                      ((AttachementHeader.status.is_(None)) | (AttachementHeader.status.between(400, 999))))
+                      ((AttachementHeader.status.is_(None)) | (AttachementHeader.status.between(600, 999))))
 
     while True:
         try:
