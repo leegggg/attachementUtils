@@ -5,7 +5,11 @@ if [[ -z $1 ]]; then
 fi
 
 tag=tieba_img
-if [[ !-z $2 ]]; then
+if test -z "$2" 
+then
+    echo "$2 is empty"
+else
+    echo "$2 is NOT empty"
     tag=$2
 fi
 
